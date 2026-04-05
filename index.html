@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOPAL PRO: LOGIN & GAMING</title>
+    <title>GOPAL PRO: GLOBAL EDITION</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <style>
         body {
             margin: 0; font-family: 'Segoe UI', sans-serif;
@@ -36,13 +39,13 @@
         .name { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); color: white; text-align: center; padding: 5px 0; font-size: 12px; }
 
         /* ÖZELLİKLER (BIO) PANELİ */
-        #bioOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 3000; }
+        #bioOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 4000; }
         .bio-box { background: white; padding: 40px; border-radius: 20px; width: 380px; text-align: center; position: relative; color: #333; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
 
         /* OYUN OVERLAY */
         #gameOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 2000; background: rgba(0,0,0,0.95); flex-direction: column; }
         
-        /* DÜZELTİLEN OYUN SEÇİM KUTUCUKLARI (HOVER EFEKTİ) */
+        /* OYUN SEÇİM KUTUCUKLARI (HOVER EFEKTİ) */
         .game-selector-grid { display: flex; gap: 30px; }
         .game-box { 
             width: 180px; height: 230px; 
@@ -53,20 +56,13 @@
             align-items: center; justify-content: center; 
             cursor: pointer; color: white; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; overflow: hidden;
         }
-
-        /* Mouse Üzerine Gelince (Eski Efekt) */
         .game-box:hover { 
-            background: #ffcc00; 
-            color: black; 
+            background: #ffcc00; color: black; 
             transform: translateY(-15px) scale(1.05); 
-            border-color: white; 
             box-shadow: 0 20px 40px rgba(255, 204, 0, 0.4); 
         }
-        .game-box div { font-size: 60px; transition: 0.3s; }
-        .game-box:hover div { transform: scale(1.2) rotate(5deg); }
-        .game-box h3 { margin-top: 15px; letter-spacing: 2px; }
+        .game-box div { font-size: 60px; margin-bottom: 15px; }
 
         /* MEGA SLOT TASARIMI */
         #slotGame { display: none; flex-direction: column; align-items: center; }
@@ -93,11 +89,11 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="color: #3333ff; margin-bottom: 5px;">GOPAL PRO</h1>
-        <p style="color: #888; font-size: 14px; margin-bottom: 20px;">Giriş Yap veya Kayıt Ol</p>
+        <h1 style="color: #3333ff;">GOPAL PRO</h1>
+        <p>Global Sıralamaya Kayıt Ol / Giriş Yap</p>
         <input type="text" id="username" placeholder="Kullanıcı Adı">
         <input type="password" id="password" placeholder="Şifre">
-        <button class="btn-game" style="width: 100%; margin-top: 10px;" onclick="handleAuth()">GİRİŞ / KAYIT</button>
+        <button class="btn-game" style="width: 100%;" onclick="handleAuth()">GİRİŞ / KAYIT</button>
     </div>
 </div>
 
@@ -108,120 +104,120 @@
         <div class="nav-btn" onclick="openGameMenu()">🎮 OYUNLAR</div>
         <div class="nav-btn" style="background: rgba(255, 68, 68, 0.4);" onclick="location.reload()">ÇIKIŞ</div>
     </div>
-
     <h1 class="main-title">GOPAL PRO</h1>
-
     <div class="container">
-        <div class="card" onclick="openBio('🫦🫦🫦', 'Gopal evreninin en gizemli karakteri. Sırları henüz çözülemedi.')"><img src="foto1.jpg"><div class="name">🫦🫦🫦</div></div>
-        <div class="card" onclick="openBio('KanyePlaklıUcube', 'Plak koleksiyonu paha biçilemez. Her gece farklı bir ritimle uyanır.')"><img src="foto2.jpg"><div class="name">KanyePlaklıUcube</div></div>
-        <div class="card" onclick="openBio('EGZOTİKMEYVE🍒', 'Tropikal rüyaların gerçeğe dönüştüğü nokta. Her zaman taze.')"><img src="foto3.jpg"><div class="name">EGZOTİKMEYVE🍒</div></div>
-        <div class="card" onclick="openBio('sen benim tuvaletimsib', 'Mizahın en karanlık ve en komik köşesi.')"><img src="foto4.jpg"><div class="name">sen benim tuvaletimsib</div></div>
-        <div class="card" onclick="openBio('EngelAdam', 'Hızlı karar verir, anında engeller. Onun radarına girmek cesaret ister.')"><img src="foto5.jpg"><div class="name">EngelAdam</div></div>
+        <div class="card" onclick="openBio('🫦🫦🫦', 'Gopal evreninin en gizemli karakteri.')"><img src="foto1.jpg"><div class="name">🫦🫦🫦</div></div>
+        <div class="card" onclick="openBio('KanyePlaklıUcube', 'Plak koleksiyonu paha biçilemez.')"><img src="foto2.jpg"><div class="name">KanyePlaklıUcube</div></div>
+        <div class="card" onclick="openBio('EGZOTİKMEYVE🍒', 'Tropikal rüyaların gerçeğe dönüştüğü nokta.')"><img src="foto3.jpg"><div class="name">EGZOTİKMEYVE🍒</div></div>
+        <div class="card" onclick="openBio('sen benim tuvaletimsib', 'Mizahın en karanlık köşesi.')"><img src="foto4.jpg"><div class="name">sen benim tuvaletimsib</div></div>
+        <div class="card" onclick="openBio('EngelAdam', 'Hızlı karar verir, anında engeller.')"><img src="foto5.jpg"><div class="name">EngelAdam</div></div>
     </div>
 </div>
 
 <div id="bioOverlay" onclick="closeBio()">
     <div class="bio-box" onclick="event.stopPropagation()">
-        <h2 id="bioTitle">Başlık</h2>
-        <p id="bioText">İçerik buraya gelecek...</p>
-        <button class="btn-game" onclick="closeBio()" style="font-size: 14px; padding: 10px 30px;">KAPAT</button>
+        <h2 id="bioTitle">Başlık</h2><p id="bioText"></p>
+        <button class="btn-game" onclick="closeBio()">KAPAT</button>
     </div>
 </div>
 
 <div id="gameOverlay">
     <div class="close-main" onclick="closeGameMenu()">✖</div>
-    
     <div id="gameSelector">
-        <h2 style="color: white; text-align:center; font-size: 32px; margin-bottom: 40px; letter-spacing: 3px;">OYUN SEÇİN</h2>
+        <h2 style="color: white; text-align:center; font-size: 32px; margin-bottom: 40px;">OYUN SEÇİN</h2>
         <div class="game-selector-grid">
-            <div class="game-box" onclick="startSlotGame()">
-                <div>🎰</div>
-                <h3>SLOT</h3>
-            </div>
-            <div class="game-box" onclick="showRanking()">
-                <div>🏆</div>
-                <h3>RANK</h3>
-            </div>
+            <div class="game-box" onclick="startSlotGame()"><div>🎰</div><h3>SLOT</h3></div>
+            <div class="game-box" onclick="showRanking()"><div>🏆</div><h3>RANK</h3></div>
         </div>
     </div>
-
     <div id="slotGame">
         <div class="slot-machine">
             <h1 style="color:#ffcc00; margin-bottom:20px;">MEGA SLOT</h1>
-            <div class="reels">
-                <div id="reel1" class="reel">🍒</div><div id="reel2" class="reel">🍒</div><div id="reel3" class="reel">🍒</div>
-            </div>
+            <div class="reels"><div id="reel1" class="reel">🍒</div><div id="reel2" class="reel">🍒</div><div id="reel3" class="reel">🍒</div></div>
             <button class="btn-game" id="spin-btn" onclick="spinSlot()">ÇEVİR (50🪙)</button>
-            <p id="slot-msg" style="margin-top:20px; font-weight:bold; color:white; font-size:20px; height:25px;"></p>
+            <p id="slot-msg" style="margin-top:20px; color:white; font-size:20px; height:25px;"></p>
         </div>
         <p style="color:#aaa; cursor:pointer; text-decoration:underline; margin-top:20px;" onclick="backToSelector()">Geri Dön</p>
     </div>
-
     <div id="rankingTable">
-        <h2 style="text-align:center; color:#ffcc00;">ZENGİNLER LİSTESİ</h2>
+        <h2 style="text-align:center; color:#ffcc00;">GLOBAL SIRALAMA</h2>
         <table id="rankList"></table>
         <button class="btn-game" style="margin-top:20px; width:100%;" onclick="backToSelector()">GERİ</button>
     </div>
 </div>
 
 <script>
+    // --- FIREBASE AYARLARI (GÜNCELLENDİ) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCRXu6y3P9orBblWm5ASfraZUZq-tQqUFY",
+        authDomain: "gopalpro-c0620.firebaseapp.com",
+        databaseURL: "https://gopalpro-c0620-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "gopalpro-c0620",
+        storageBucket: "gopalpro-c0620.firebasestorage.app",
+        messagingSenderId: "432658140252",
+        appId: "1:432658140252:web:39c62813be7acda1406a99"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     let currentUser = null;
+    let userData = null;
     const slotIcons = ['🍒', '🍋', '🔔', '💎', '7️⃣', '⭐'];
 
     function handleAuth() {
-        const u = document.getElementById('username').value.trim();
+        const u = document.getElementById('username').value.trim().toLowerCase();
         const p = document.getElementById('password').value.trim();
-        if(!u || !p) return alert("Bilgileri girin!");
-        let players = JSON.parse(localStorage.getItem('gopal_final_players') || '{}');
-        if(!players[u]) { players[u] = { pass: p, balance: 1000 }; localStorage.setItem('gopal_final_players', JSON.stringify(players)); }
-        else if(players[u].pass !== p) return alert("Hatalı şifre!");
+        if(!u || !p) return alert("Bilgileri gir!");
+
+        database.ref('players/' + u).once('value', (snapshot) => {
+            const data = snapshot.val();
+            if(!data) {
+                userData = { pass: p, balance: 1000 };
+                database.ref('players/' + u).set(userData);
+                loginSuccess(u);
+            } else if(data.pass === p) {
+                userData = data;
+                loginSuccess(u);
+            } else {
+                alert("Hatalı şifre!");
+            }
+        });
+    }
+
+    function loginSuccess(u) {
         currentUser = u;
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('mainContent').style.display = 'flex';
         document.getElementById('userDisp').innerText = u.toUpperCase();
-        updateDisplay();
-    }
-
-    function updateDisplay() {
-        let players = JSON.parse(localStorage.getItem('gopal_final_players'));
-        document.getElementById('balance').innerText = players[currentUser].balance;
+        database.ref('players/' + currentUser).on('value', (snapshot) => {
+            userData = snapshot.val();
+            document.getElementById('balance').innerText = userData ? userData.balance : 0;
+        });
     }
 
     function updateBalance(amt) {
-        let players = JSON.parse(localStorage.getItem('gopal_final_players'));
-        players[currentUser].balance += amt;
-        localStorage.setItem('gopal_final_players', JSON.stringify(players));
-        updateDisplay();
+        if(!currentUser || !userData) return;
+        database.ref('players/' + currentUser).update({ balance: userData.balance + amt });
     }
-
-    function openBio(t, s) { 
-        document.getElementById('bioTitle').innerText = t; 
-        document.getElementById('bioText').innerText = s; 
-        document.getElementById('bioOverlay').style.display = 'flex'; 
-    }
-    function closeBio() { document.getElementById('bioOverlay').style.display = 'none'; }
-
-    function openGameMenu() { document.getElementById("gameOverlay").style.display = "flex"; backToSelector(); }
-    function closeGameMenu() { document.getElementById("gameOverlay").style.display = "none"; }
-    function backToSelector() { document.getElementById("gameSelector").style.display = "block"; document.getElementById("slotGame").style.display = "none"; document.getElementById("rankingTable").style.display = "none"; }
-    function startSlotGame() { document.getElementById("gameSelector").style.display = "none"; document.getElementById("slotGame").style.display = "flex"; }
 
     function showRanking() {
         document.getElementById('gameSelector').style.display = 'none';
         document.getElementById('rankingTable').style.display = 'block';
-        let players = JSON.parse(localStorage.getItem('gopal_final_players'));
-        let sorted = Object.entries(players).sort((a,b) => b[1].balance - a[1].balance);
-        let t = document.getElementById('rankList');
-        t.innerHTML = '<tr><th>#</th><th>Oyuncu</th><th>Kasa</th></tr>';
-        sorted.slice(0, 10).forEach((p, i) => {
-            let row = t.insertRow();
-            row.innerHTML = `<td>${i+1}</td><td>${p[0]}</td><td style="color:#00ffcc">${p[1].balance} 🪙</td>`;
+        database.ref('players').orderByChild('balance').limitToLast(10).once('value', (snapshot) => {
+            let list = [];
+            snapshot.forEach(child => { list.push({name: child.key, balance: child.val().balance}); });
+            list.sort((a,b) => b.balance - a.balance);
+            let t = document.getElementById('rankList');
+            t.innerHTML = '<tr><th>#</th><th>Oyuncu</th><th>Kasa</th></tr>';
+            list.forEach((p, i) => {
+                let row = t.insertRow();
+                row.innerHTML = `<td>${i+1}</td><td>${p.name}</td><td style="color:#00ffcc">${p.balance} 🪙</td>`;
+            });
         });
     }
 
     function spinSlot() {
-        let players = JSON.parse(localStorage.getItem('gopal_final_players'));
-        if(players[currentUser].balance < 50) return alert("Bakiye bitti!");
+        if(!userData || userData.balance < 50) return alert("Para bitti!");
         updateBalance(-50);
         const btn = document.getElementById('spin-btn');
         btn.disabled = true;
@@ -241,6 +237,13 @@
         else if(r1===r2 || r2===r3 || r1===r3) { updateBalance(75); msg.style.color = "#ffcc00"; msg.innerText = "KAZANDIN! +75"; }
         else { msg.style.color = "#ff4444"; msg.innerText = "KAYIP!"; }
     }
+
+    function openBio(t, s) { document.getElementById('bioTitle').innerText = t; document.getElementById('bioText').innerText = s; document.getElementById('bioOverlay').style.display = 'flex'; }
+    function closeBio() { document.getElementById('bioOverlay').style.display = 'none'; }
+    function openGameMenu() { document.getElementById("gameOverlay").style.display = "flex"; backToSelector(); }
+    function closeGameMenu() { document.getElementById("gameOverlay").style.display = "none"; }
+    function backToSelector() { document.getElementById("gameSelector").style.display = "block"; document.getElementById("slotGame").style.display = "none"; document.getElementById("rankingTable").style.display = "none"; }
+    function startSlotGame() { document.getElementById("gameSelector").style.display = "none"; document.getElementById("slotGame").style.display = "flex"; }
 
     setInterval(() => {
         const s = document.createElement("div"); s.className = "snowflake"; s.innerHTML = "❄";
