@@ -39,6 +39,19 @@
 
         #gameOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 2000; background: rgba(0,0,0,0.95); flex-direction: column; }
         
+        /* Chrome, Safari, Edge ve Opera için okları kaldırır */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox için okları kaldırır */
+input[type=number] {
+    appearance: textfield; /* Standart kod */
+    -moz-appearance: textfield; /* Firefox özel kodu */
+}
+
         .game-selector-grid { display: flex; gap: 40px; }
         .game-box { 
             width: 220px; height: 280px; 
@@ -76,6 +89,9 @@
 
         .snowflake { position: absolute; top: -10px; animation: fall linear infinite; pointer-events: none; color: white; z-index: 1; }
         @keyframes fall { to { transform: translateY(100vh); } }
+
+        #crashGameUI { display:none; flex-direction:column; align-items:center; width: 100%; }
+        #crashCanvasContainer { position: relative; background: #000; border-radius: 10px; height: 350px; width: 100%; overflow: hidden; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -126,6 +142,8 @@
         <div class="game-selector-grid">
             <div class="game-box" onclick="startSlotGame()"><div>🎰</div><h3>SLOT</h3></div>
             <div class="game-box" onclick="startBirdGame()"><div>🐦</div><h3>BIRD</h3></div>
+            <div class="game-box" onclick="startCrashGame()"><div>🚀</div><h3>CRASH</h3></div>
+            <div class="game-box" onclick="startPlinkoGame()"><div>🔮</div><h3>BLINGO</h3></div>
             <div class="game-box" onclick="showRanking()"><div>🏆</div><h3>RANK</h3></div>
         </div>
     </div>
@@ -147,30 +165,69 @@
         <p style="color:#aaa; cursor:pointer; text-decoration:underline; margin-top:30px;" onclick="backToSelector()">Geri Dön</p>
     </div>
 
-    <div id="rankingTable">
-        <h2 style="text-align:center; color:#ffcc00; margin-bottom: 20px;">GLOBAL LİDERLİK</h2>
-        <div class="rank-flex">
-            <div class="rank-col">
-                <h4 style="text-align:center; color:#ffcc00;">💰 EN ZENGİNLER</h4>
-                <table id="rankListWealth"></table>
+    <div id="crashGameUI" style="display:none; flex-direction:column; align-items:center; width: 100%;">
+        <div style="background: #0a0a0a; padding: 20px; border-radius: 20px; border: 2px solid #333; width: 90%; max-width: 700px;">
+            <div style="display: flex; justify-content: space-between; color: #ffcc00; font-weight: bold; margin-bottom: 10px;">
+                <span>GOPAL CRASH PRO</span>
+                <span id="crashLastBust">SON: -</span>
             </div>
-            <div class="rank-col">
-                <h4 style="text-align:center; color:#00ffcc;">🐦 BİRD REKORLARI</h4>
-                <table id="rankListBird"></table>
+            <div id="crashCanvasContainer">
+                <canvas id="crashCanvas"></canvas>
+                <div id="crashMultiplier" style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 70px; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(255,255,255,0.4);">1.00x</div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center; align-items: center; background: #1a1a1a; padding: 15px; border-radius: 15px;">
+                <input type="number" id="crashBetInput" value="100" style="background: #000; border: 1px solid #444; color: #00ffcc; padding: 10px; border-radius: 10px; width: 100px; font-size: 18px; text-align: center;">
+                <button class="btn-game" id="crashStartBtn" onclick="startCrashPlay()" style="font-size:16px; padding: 12px 30px;">BAHİS YAP</button>
+                <button class="btn-game" id="crashCashoutBtn" onclick="cashoutCrash()" style="display:none; background: #00ff66; box-shadow: 0 6px 0 #008833; font-size:16px; padding: 12px 30px; color:black;">NAKİT ÇEK</button>
             </div>
         </div>
-        <button class="btn-game" style="margin-top:30px; width:100%;" onclick="backToSelector()">GERİ GİT</button>
+        <p style="color:#aaa; cursor:pointer; text-decoration:underline; margin-top:20px;" onclick="backToSelector()">Geri Dön</p>
     </div>
-</div>
+
+    <div id="rankingTable">
+        <h2 style="text-align:center; color:#ffcc00; margin-bottom: 15px;" id="rankTitle">💰 ZENGİNLER SİRALAMASI</h2>
+        
+        <div style="height: 350px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 15px; padding: 10px;">
+            <table id="rankList">
+                </table>
+        </div>
+    
+        <div style="display: flex; justify-content: space-around; margin-top: 20px; background: #333; padding: 10px; border-radius: 50px; border: 2px solid #444;">
+            <div class="nav-btn" style="font-size: 12px; padding: 10px;" onclick="loadRank('wealth')">💰 PARA</div>
+            <div class="nav-btn" style="font-size: 12px; padding: 10px;" onclick="loadRank('bird')">🐦 BIRD</div>
+            <div class="nav-btn" style="font-size: 12px; padding: 10px;" onclick="loadRank('crash')">🚀 CRASH</div>
+        </div>
+    
+        <button class="btn-game" style="margin-top:20px; width:100%; height: 50px; font-size: 16px;" onclick="backToSelector()">ANA MENÜYE DÖN</button>
+    </div>
+
+    <div id="plinkoGameUI" style="display:none; flex-direction:column; align-items:center; width: 100%;">
+        <div style="background: #0a0a0a; padding: 20px; border-radius: 20px; border: 2px solid #444; width: 95%; max-width: 600px; text-align: center;">
+            <h2 style="color: #ff00cc; margin-top: 0;">GOPAL BLINGO (PLINKO)</h2>
+            <canvas id="plinkoCanvas"></canvas>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center; background: #1a1a1a; padding: 15px; border-radius: 15px;">
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <label style="color:#aaa; font-size:12px;">BAHİS</label>
+                    <input type="number" id="plinkoBetInput" value="100" 
+                    style="background: #000; border: 1px solid #444; color: #ffcc00; padding: 8px; border-radius: 8px; width: 80px; text-align: center; outline: none;">
+                </div>
+                <button class="btn-game" onclick="dropBall()" style="font-size:16px; padding: 10px 40px; background: #ff00cc; box-shadow: 0 4px 0 #99007a;">TOPU BIRAK</button>
+            </div>
+        </div>
+        <p style="color:#aaa; cursor:pointer; text-decoration:underline; margin-top:20px;" onclick="backToSelector()">Geri Dön</p>
+    </div>
 
 <script>
-    // --- KUŞ FOTOĞRAFI AYARI (AYNI KLASÖRDEKİ DOSYA ADI) ---
     const kusDosyaAdi = "kus.png"; 
     let kusResmi = new Image();
     kusResmi.src = kusDosyaAdi;
     let kusYuklendi = false;
     kusResmi.onload = () => { kusYuklendi = true; };
-    // ---------------------------------------------------
+
+    let crashImg = new Image();
+    crashImg.src = 'roket.png'; 
+    crashImg.onerror = () => { crashImg.src = 'https://img.icons8.com/color/96/space-shuttle.png'; };
 
     const firebaseConfig = {
         apiKey: "AIzaSyCRXu6y3P9orBblWm5ASfraZUZq-tQqUFY",
@@ -214,7 +271,7 @@
         });
     }
 
-    function updateBalance(amt) { database.ref('players/' + currentUser).update({ balance: userData.balance + amt }); }
+    function updateBalance(amt) { database.ref('players/' + currentUser).update({ balance: (userData.balance || 0) + amt }); }
     function setBet(a, b) { currentBet = a; document.querySelectorAll('.bet-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
 
     function spinSlot() {
@@ -272,95 +329,217 @@
     }
 
     function drawBird(x, y, rotation) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-
-        if (kusYuklendi) {
-            const boyut = 100; // Kuş fotoğrafı boyutu
-            ctx.drawImage(kusResmi, -boyut/2, -boyut/2, boyut, boyut);
-        } else {
-            // Fotoğraf yüklenene kadar veya yoksa sarı yuvarlak çiz
-            ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#000"; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        }
-        
+        ctx.save(); ctx.translate(x, y); ctx.rotate(rotation);
+        if (kusYuklendi) ctx.drawImage(kusResmi, -50, -50, 100, 100);
+        else { ctx.fillStyle = "#ffcc00"; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill(); }
         ctx.restore();
     }
 
     function drawPipe(p) {
-        const pipeWidth = 100, gap = 130, pipeColor = "#2e7d32", rimColor = "#1b5e20";
-        ctx.save();
-        ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 15; ctx.shadowOffsetX = 8;
-        ctx.fillStyle = pipeColor; ctx.fillRect(p.x, 0, pipeWidth, p.y - gap);
-        ctx.fillStyle = rimColor; ctx.fillRect(p.x - 10, p.y - gap - 30, pipeWidth + 20, 30);
-        ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 15; ctx.shadowOffsetX = 8;
-        ctx.fillStyle = pipeColor; ctx.fillRect(p.x, p.y + gap, pipeWidth, canvas.height);
-        ctx.fillStyle = rimColor; ctx.fillRect(p.x - 10, p.y + gap, pipeWidth + 20, 30);
-        ctx.restore();
+        const pipeWidth = 100, gap = 130;
+        // GERÇEKÇİ BORU ÇİZİMİ
+        ctx.fillStyle = "#2e7d32"; // Ana yeşil
+        ctx.fillRect(p.x, 0, pipeWidth, p.y - gap); // Üst boru
+        ctx.fillRect(p.x, p.y + gap, pipeWidth, canvas.height); // Alt boru
+        // Boru Başlıkları
+        ctx.fillStyle = "#1b5e20"; // Koyu yeşil çerçeve
+        ctx.fillRect(p.x - 5, p.y - gap - 30, pipeWidth + 10, 30);
+        ctx.fillRect(p.x - 5, p.y + gap, pipeWidth + 10, 30);
+        // Gölgelendirme (Parlaklık çizgisi)
+        ctx.fillStyle = "rgba(255,255,255,0.2)";
+        ctx.fillRect(p.x + 10, 0, 15, p.y - gap);
+        ctx.fillRect(p.x + 10, p.y + gap, 15, canvas.height);
     }
 
     function gameLoop(timestamp) {
         if(!birdGameActive) return;
-        const deltaTime = timestamp - lastTime; const fpsInterval = 1000 / targetFPS;
-        if (deltaTime < fpsInterval) { requestAnimationFrame(gameLoop); return; }
-        lastTime = timestamp - (deltaTime % fpsInterval);
+        const deltaTime = timestamp - lastTime;
+        if (deltaTime < 1000/targetFPS) { requestAnimationFrame(gameLoop); return; }
+        lastTime = timestamp;
         drawBackground();
-        birdV += 0.6; birdY += birdV; birdRotation = Math.atan2(birdV, 15);
-        if (birdRotation > Math.PI / 4) birdRotation = Math.PI / 4;
+        birdV += 0.6; birdY += birdV; birdRotation = Math.min(Math.PI/4, Math.atan2(birdV, 15));
         drawBird(150, birdY, birdRotation);
-        const minDistance = canvas.width < 1000 ? 350 : 500;
-        if(pipes.length === 0 || pipes[pipes.length-1].x < canvas.width - minDistance) {
+        if(pipes.length === 0 || pipes[pipes.length-1].x < canvas.width - 500) {
             pipes.push({ x: canvas.width, y: Math.random() * (canvas.height - 400) + 200 });
         }
-        pipes.forEach((p, i) => {
+        pipes.forEach(p => {
             p.x -= 6; drawPipe(p);
-            if(p.x < 145 && p.x > 138) { 
-                birdScore++; 
-                document.getElementById('birdScoreDisplay').innerText = birdScore; 
-                updateBalance(75); 
-            }
-            const pipeWidth = 100, gap = 130, birdRadius = 22;
-            if(p.x < 150 + birdRadius && p.x + pipeWidth > 150 - birdRadius && (birdY - birdRadius < p.y - gap || birdY + birdRadius > p.y + gap)) { birdGameActive = false; }
+            if(p.x < 145 && p.x > 138) { birdScore++; document.getElementById('birdScoreDisplay').innerText = birdScore; updateBalance(75); }
+            if(p.x < 150+22 && p.x+100 > 150-22 && (birdY-22 < p.y-130 || birdY+22 > p.y+130)) birdGameActive = false;
         });
         pipes = pipes.filter(p => p.x > -150);
-        if(birdY > canvas.height - 30 || birdY < 30) birdGameActive = false;
-
+        if(birdY > canvas.height || birdY < 0) birdGameActive = false;
         if(!birdGameActive) {
-            if(birdScore > (userData.birdHighScore || 0)) {
-                database.ref('players/' + currentUser).update({ birdHighScore: birdScore });
-                alert("YENİ REKOR: " + birdScore);
-            } else {
-                alert("OYUN BİTTİ! Skor: " + birdScore + " | Kazanç: " + (birdScore * 75) + " 🪙");
-            }
+            if(birdScore > (userData.birdHighScore || 0)) database.ref('players/' + currentUser).update({ birdHighScore: birdScore });
+            alert("OYUN BİTTİ! Skor: " + birdScore);
             canvas.style.display = 'none'; document.getElementById('birdUI').style.display = 'none'; openGameMenu();
-        } else { requestAnimationFrame(gameLoop); }
+        } else requestAnimationFrame(gameLoop);
+    }
+
+    // --- DÜZELTİLMİŞ CRASH MOTORU ---
+    let crashActive = false, crashVal = 1.0, crashReq, crashStartTime, crashBetAmt = 0;
+    const crCanvas = document.getElementById('crashCanvas');
+    const crCtx = crCanvas.getContext('2d');
+
+    function startCrashGame() {
+        document.getElementById("gameSelector").style.display = "none";
+        document.getElementById("crashGameUI").style.display = "flex";
+        crCanvas.width = 700; crCanvas.height = 350;
+        resetCrashStatic();
+    }
+
+    function resetCrashStatic() {
+        crCtx.clearRect(0, 0, 700, 350);
+        crCtx.strokeStyle = "#1a1a1a";
+        for(let i=0; i<700; i+=50) { crCtx.beginPath(); crCtx.moveTo(i, 0); crCtx.lineTo(i, 350); crCtx.stroke(); }
+        // ROKETİ TAM KÖŞEYE KOY (Başlangıç noktası 0, 350)
+        crCtx.drawImage(crashImg, 0, 295, 55, 55); 
+    }
+
+    function startCrashPlay() {
+        crashBetAmt = parseInt(document.getElementById('crashBetInput').value);
+        if(userData.balance < crashBetAmt) return alert("Bakiye yetersiz!");
+        updateBalance(-crashBetAmt);
+        crashActive = true; crashVal = 1.0; crashStartTime = Date.now();
+        let bustPoint = Math.random() < 0.04 ? 1.00 : (0.98 / (1 - Math.random()));
+        document.getElementById('crashStartBtn').style.display = 'none';
+        document.getElementById('crashCashoutBtn').style.display = 'inline-block';
+        document.getElementById('crashMultiplier').style.color = "white";
+
+        function loop() {
+            if(!crashActive) return;
+            let elapsed = (Date.now() - crashStartTime) / 1000;
+            crashVal = Math.pow(Math.E, 0.075 * elapsed);
+            document.getElementById('crashMultiplier').innerText = crashVal.toFixed(2) + "x";
+            crCtx.clearRect(0, 0, 700, 350);
+            crCtx.strokeStyle = "#1a1a1a";
+            for(let i=0; i<700; i+=50) { crCtx.beginPath(); crCtx.moveTo(i, 0); crCtx.lineTo(i, 350); crCtx.stroke(); }
+
+            // ÇİZGİ VE ROKET KOORDİNAT SENKRONU
+            let dx = elapsed * 45; // X ilerlemesi
+            let dy = 350 - (crashVal - 1) * 85; // Y yükselişi (350'den başlar)
+            
+            crCtx.beginPath();
+            crCtx.lineWidth = 5; crCtx.strokeStyle = "#ffcc00";
+            crCtx.moveTo(0, 350);
+            crCtx.quadraticCurveTo(dx/2, 350, dx, dy);
+            crCtx.stroke();
+
+            crCtx.save();
+            crCtx.translate(dx, dy);
+            crCtx.rotate(-Math.atan2(350-dy, dx)*0.7);
+            crCtx.drawImage(crashImg, -28, -28, 56, 56);
+            crCtx.restore();
+
+            if(crashVal >= bustPoint || dx > 700 || dy < 0) {
+                crashActive = false;
+                document.getElementById('crashMultiplier').innerText = "PATLADI!";
+                document.getElementById('crashMultiplier').style.color = "#ff4444";
+                document.getElementById('crashLastBust').innerText = "SON: " + crashVal.toFixed(2) + "x";
+                crCtx.fillStyle = "rgba(255,0,0,0.3)";
+                crCtx.fillRect(0,0,700,350);
+                setTimeout(resetCrashUI, 2000);
+            } else crashReq = requestAnimationFrame(loop);
+        }
+        loop();
+    }
+
+    function cashoutCrash() {
+        if(!crashActive) return;
+        crashActive = false; cancelAnimationFrame(crashReq);
+        let win = Math.floor(crashBetAmt * crashVal);
+        updateBalance(win);
+        document.getElementById('crashMultiplier').style.color = "#00ff66";
+        alert("NAKİT ÇEKİLDİ! +" + win + " 🪙");
+        resetCrashUI();
+
+
+        if(crashVal > (userData.crashMaxWin || 0)) {
+        database.ref('players/' + currentUser).update({ crashMaxWin: parseFloat(crashVal.toFixed(2)) });
+    }
+    }
+
+    function resetCrashUI() {
+        crashActive = false;
+        document.getElementById('crashStartBtn').style.display = 'inline-block';
+        document.getElementById('crashCashoutBtn').style.display = 'none';
+        resetCrashStatic();
     }
 
     function showRanking() {
-        document.getElementById('gameSelector').style.display = 'none';
-        document.getElementById('rankingTable').style.display = 'block';
-        database.ref('players').once('value', snap => {
-            let p = []; snap.forEach(c => { p.push({n: c.key, b: c.val().balance || 0, s: c.val().birdHighScore || 0}); });
-            
-            let tw = document.getElementById('rankListWealth');
-            tw.innerHTML = '<tr><th>#</th><th>İsim</th><th>🪙</th></tr>';
-            [...p].sort((a,b) => b.b - a.b).slice(0,10).forEach((x,i) => { tw.innerHTML += `<tr><td>${i+1}</td><td>${x.n}</td><td>${x.b}</td></tr>`; });
+    // Menüleri ayarla
+    document.getElementById('gameSelector').style.display = 'none';
+    document.getElementById('rankingTable').style.display = 'block';
+    // Varsayılan olarak cüzdan (zenginler) sıralamasını yükle
+    loadRank('wealth'); 
+}
 
-            let ts = document.getElementById('rankListBird');
-            ts.innerHTML = '<tr><th>#</th><th>İsim</th><th>🏆</th></tr>';
-            [...p].sort((a,b) => b.s - a.s).slice(0,10).forEach((x,i) => { ts.innerHTML += `<tr><td>${i+1}</td><td>${x.n}</td><td>${x.s}</td></tr>`; });
+function loadRank(type) {
+    const list = document.getElementById('rankList');
+    const title = document.getElementById('rankTitle');
+    
+    // Yükleniyor efekti
+    list.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">Veriler Çekiliyor...</td></tr>';
+
+    database.ref('players').once('value', snap => {
+        let players = [];
+        snap.forEach(child => {
+            let d = child.val();
+            players.push({
+                name: child.key,
+                balance: d.balance || 0,
+                bird: d.birdHighScore || 0,
+                crash: d.crashMaxWin || 0 // Crash rekoru
+            });
         });
-    }
+
+        let html = '';
+        
+        if (type === 'wealth') {
+            title.innerText = "💰 ZENGİNLER SIRALAMASI";
+            title.style.color = "#ffcc00";
+            html = '<tr><th>#</th><th>OYUNCU</th><th>🪙 KASA</th></tr>';
+            players.sort((a, b) => b.balance - a.balance);
+        } else if (type === 'bird') {
+            title.innerText = "🐦 BIRD REKORLARI";
+            title.style.color = "#00ffcc";
+            html = '<tr><th>#</th><th>OYUNCU</th><th>🏆 SKOR</th></tr>';
+            players.sort((a, b) => b.bird - a.bird);
+        } else if (type === 'crash') {
+            title.innerText = "🚀 CRASH REKORLARI";
+            title.style.color = "#ff4444";
+            html = '<tr><th>#</th><th>OYUNCU</th><th>💥 MAX X</th></tr>';
+            players.sort((a, b) => b.crash - a.crash);
+        }
+
+        // İlk 20 kişiyi listele
+        players.slice(0, 20).forEach((p, i) => {
+            let displayVal;
+            if(type === 'wealth') displayVal = p.balance.toLocaleString() + " 🪙";
+            else if(type === 'bird') displayVal = p.bird + " Puan";
+            else displayVal = p.crash + "x";
+
+            html += `<tr>
+                <td style="color:#888;">${i + 1}</td>
+                <td style="font-weight:bold; color: white;">${p.name.toUpperCase()}</td>
+                <td style="color:#ffcc00; text-align:right;">${displayVal}</td>
+            </tr>`;
+        });
+
+        list.innerHTML = html;
+    });
+}
 
     function openBio(t, s) { document.getElementById('bioTitle').innerText = t; document.getElementById('bioText').innerText = s; document.getElementById('bioOverlay').style.display = 'flex'; }
     function closeBio() { document.getElementById('bioOverlay').style.display = 'none'; }
     function openGameMenu() { document.getElementById("gameOverlay").style.display = "flex"; backToSelector(); }
-    function closeGameMenu() { document.getElementById("gameOverlay").style.display = "none"; }
+    function closeGameMenu() { document.getElementById("gameOverlay").style.display = "none"; crashActive = false; cancelAnimationFrame(crashReq); }
     function backToSelector() { 
+        document.getElementById("plinkoGameUI").style.display = "none";
         document.getElementById("gameSelector").style.display = "block"; 
         document.getElementById("slotGame").style.display = "none"; 
         document.getElementById("rankingTable").style.display = "none"; 
+        document.getElementById("crashGameUI").style.display = "none";
         canvas.style.display = 'none'; document.getElementById('birdUI').style.display = 'none'; birdGameActive = false;
     }
     function startSlotGame() { document.getElementById("gameSelector").style.display = "none"; document.getElementById("slotGame").style.display = "flex"; }
@@ -371,6 +550,139 @@
         s.style.animationDuration = Math.random() * 3 + 4 + "s";
         document.body.appendChild(s); setTimeout(() => s.remove(), 5000);
     }, 200);
+
+    let plinkoBalls = [];
+const plinkoCanvas = document.getElementById('plinkoCanvas');
+const pCtx = plinkoCanvas.getContext('2d');
+const rows = 12; // Piramit derinliği
+const pinRadius = 4;
+const ballRadius = 7;
+const multipliers = [10, 5, 2, 1.2, 0.5, 0.2, 0.2, 0.5, 1.2, 2, 5, 10]; // Alt kutu ödülleri
+
+function startPlinkoGame() {
+    document.getElementById("gameSelector").style.display = "none";
+    document.getElementById("plinkoGameUI").style.display = "flex";
+    plinkoCanvas.width = 500;
+    plinkoCanvas.height = 450;
+    plinkoBalls = [];
+    requestAnimationFrame(updatePlinko);
+}
+
+function dropBall() {
+    const bet = parseInt(document.getElementById('plinkoBetInput').value);
+    if(userData.balance < bet) return alert("Kasa yetersiz!");
+    updateBalance(-bet);
+
+    // Yeni top objesi
+    plinkoBalls.push({
+        x: plinkoCanvas.width / 2 + (Math.random() * 4 - 2),
+        y: 30,
+        vx: 0,
+        vy: 0,
+        bet: bet,
+        row: 0
+    });
+}
+
+function updatePlinko() {
+    if(document.getElementById("plinkoGameUI").style.display === "none") return;
+    pCtx.clearRect(0, 0, plinkoCanvas.width, plinkoCanvas.height);
+
+    // --- AYARLAR ---
+    const pinGapX = 30; // Yatay aralık
+    const pinGapY = 25; // Dikey aralık (Sıkılaştırdık ki kutulara girmesin)
+    const currentRows = 12; // Satır sayısını 12'ye sabitledik
+    let allPins = [];
+
+    // 1. Çivileri Çiz (Yukarıdan başla, kutudan önce bitir)
+    pCtx.fillStyle = "#ffffff";
+    for (let i = 0; i < currentRows; i++) {
+        const rowY = 40 + i * pinGapY; // Başlangıç 40px
+        const pinsInRow = i + 3;
+        const startX = plinkoCanvas.width / 2 - (pinsInRow - 1) * pinGapX / 2;
+        
+        for (let j = 0; j < pinsInRow; j++) {
+            const px = startX + j * pinGapX;
+            const py = rowY;
+            allPins.push({x: px, y: py});
+            
+            pCtx.beginPath();
+            pCtx.arc(px, py, 3.5, 0, Math.PI * 2); 
+            pCtx.fill();
+        }
+    }
+
+    // 2. Çarpan Kutuları (Net bir şekilde en altta)
+    const hardMultipliers = [15, 5, 2, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5, 2, 5, 15];
+    const boxWidth = 38;
+    const boxStartY = 390; // Kutuların başladığı yükseklik
+    const boxStartX = (plinkoCanvas.width - hardMultipliers.length * boxWidth) / 2;
+    
+    hardMultipliers.forEach((m, i) => {
+        // Renklendirme: Yüksek kazanç sarı, normal yeşil, kayıp kırmızı
+        pCtx.fillStyle = m >= 1 ? (m >= 5 ? "#ffcc00" : "#00ff66") : "#ff4444";
+        pCtx.fillRect(boxStartX + i * boxWidth + 2, boxStartY, boxWidth - 4, 30);
+        
+        pCtx.fillStyle = "black";
+        pCtx.font = "bold 11px Arial";
+        pCtx.textAlign = "center";
+        pCtx.fillText(m + "x", boxStartX + i * boxWidth + boxWidth/2, boxStartY + 20);
+    });
+
+    // 3. Top Fizikleri ve Hareket
+    for (let i = plinkoBalls.length - 1; i >= 0; i--) {
+        let ball = plinkoBalls[i];
+        
+        ball.vy += 0.28; // Biraz daha hızlı düşüş
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        ball.vx *= 0.97; 
+
+        // ÇİVİ ÇARPIŞMASI
+        allPins.forEach(pin => {
+            const dx = ball.x - pin.x;
+            const dy = ball.y - pin.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < ballRadius + 3.5) {
+                const angle = Math.atan2(dy, dx);
+                const bouncePower = 3.5; // Sekme şiddeti
+                
+                // Topu dışarı it
+                ball.x = pin.x + (ballRadius + 3.5) * Math.cos(angle);
+                ball.y = pin.y + (ballRadius + 3.5) * Math.sin(angle);
+                
+                // Rastgele yön sapması (Daha doğal sekme için)
+                const rand = (Math.random() - 0.5) * 4;
+                ball.vx = Math.cos(angle) * bouncePower + rand; 
+                ball.vy = Math.abs(Math.sin(angle) * bouncePower) + 0.5;
+            }
+        });
+
+        // Duvar Sekmesi
+        if (ball.x < 10 || ball.x > plinkoCanvas.width - 10) ball.vx *= -0.6;
+
+        // Topu Çiz
+        pCtx.beginPath();
+        pCtx.fillStyle = "#ff00cc";
+        pCtx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+        pCtx.fill();
+        pCtx.strokeStyle = "white";
+        pCtx.lineWidth = 1;
+        pCtx.stroke();
+
+        // KUTUYA DÜŞME KONTROLÜ
+        if (ball.y > boxStartY) {
+            const hitIndex = Math.floor((ball.x - boxStartX) / boxWidth);
+            if (hitIndex >= 0 && hitIndex < hardMultipliers.length) {
+                const win = Math.floor(ball.bet * hardMultipliers[hitIndex]);
+                updateBalance(win);
+            }
+            plinkoBalls.splice(i, 1);
+        }
+    }
+    requestAnimationFrame(updatePlinko);
+}
 </script>
 </body>
 </html>
