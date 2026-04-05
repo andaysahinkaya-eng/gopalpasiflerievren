@@ -164,6 +164,14 @@
 </div>
 
 <script>
+    // --- KUŞ FOTOĞRAFI AYARI (AYNI KLASÖRDEKİ DOSYA ADI) ---
+    const kusDosyaAdi = "kus.png"; 
+    let kusResmi = new Image();
+    kusResmi.src = kusDosyaAdi;
+    let kusYuklendi = false;
+    kusResmi.onload = () => { kusYuklendi = true; };
+    // ---------------------------------------------------
+
     const firebaseConfig = {
         apiKey: "AIzaSyCRXu6y3P9orBblWm5ASfraZUZq-tQqUFY",
         authDomain: "gopalpro-c0620.firebaseapp.com",
@@ -264,13 +272,19 @@
     }
 
     function drawBird(x, y, rotation) {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(rotation);
-        ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#000"; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(12, -10, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(15, -10, 4, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#ff4444"; ctx.beginPath(); ctx.moveTo(22, 5); ctx.lineTo(40, 0); ctx.lineTo(22, -5); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#e6b800"; ctx.beginPath(); ctx.ellipse(-10, 5, 15, 8, Math.PI/4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+
+        if (kusYuklendi) {
+            const boyut = 60; // Kuş fotoğrafı boyutu
+            ctx.drawImage(kusResmi, -boyut/2, -boyut/2, boyut, boyut);
+        } else {
+            // Fotoğraf yüklenene kadar veya yoksa sarı yuvarlak çiz
+            ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#000"; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        }
+        
         ctx.restore();
     }
 
