@@ -233,8 +233,8 @@
     function checkSlot() {
         const r1 = document.getElementById('reel1').innerText, r2 = document.getElementById('reel2').innerText, r3 = document.getElementById('reel3').innerText;
         const msg = document.getElementById('slot-msg');
-        if(r1===r2 && r2===r3) { updateBalance(500); msg.style.color = "#00ffcc"; msg.innerText = "JACKPOT! +500"; }
-        else if(r1===r2 || r2===r3 || r1===r3) { updateBalance(75); msg.style.color = "#ffcc00"; msg.innerText = "KAZANDIN! +75"; }
+        if(r1===r2 && r2===r3) { updateBalance(10000); msg.style.color = "#00ffcc"; msg.innerText = "JACKPOT! +10000💸"; }
+        else if(r1===r2 || r2===r3 || r1===r3) { updateBalance(150); msg.style.color = "#ffcc00"; msg.innerText = "KAZANDIN! +150"; }
         else { msg.style.color = "#ff4444"; msg.innerText = "KAYIP!"; }
     }
 
