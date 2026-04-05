@@ -67,7 +67,6 @@
         .btn-game { padding: 18px 50px; border: none; border-radius: 60px; background: #ffcc00; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0 #b89600; font-size: 20px; pointer-events: auto; }
         .close-main { position: absolute; top: 20px; right: 30px; font-size: 50px; cursor: pointer; color: white; z-index: 3200; }
 
-        /* YENİ SIRALAMA TASARIMI */
         #rankingTable { display: none; background: #222; padding: 30px; border-radius: 30px; width: 90%; max-width: 800px; color: white; border: 3px solid #444; }
         .rank-flex { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         .rank-col { flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; }
@@ -117,7 +116,7 @@
 <canvas id="birdCanvas"></canvas>
 <div id="birdUI">
     <p id="birdScoreDisplay">0</p>
-    <button class="btn-game" id="birdStartBtn" onclick="initBirdGame()">BAŞLAT (100🪙)</button>
+    <button class="btn-game" id="birdStartBtn" onclick="initBirdGame()">BAŞLAT (500🪙)</button>
 </div>
 
 <div id="gameOverlay">
@@ -246,8 +245,8 @@
     }
     
     function initBirdGame() {
-        if(userData.balance < 100) return alert("Kasa boşaldı!");
-        updateBalance(-100);
+        if(userData.balance < 500) return alert("Kasa yetersiz! Giriş 500🪙."); 
+        updateBalance(-500); 
         birdY = canvas.height / 2; birdV = 0; birdRotation = 0; pipes = []; birdScore = 0;
         birdGameActive = true; lastTime = performance.now();
         document.getElementById('birdStartBtn').style.display = 'none';
@@ -302,7 +301,11 @@
         }
         pipes.forEach((p, i) => {
             p.x -= 6; drawPipe(p);
-            if(p.x < 145 && p.x > 138) { birdScore++; document.getElementById('birdScoreDisplay').innerText = birdScore; updateBalance(50); }
+            if(p.x < 145 && p.x > 138) { 
+                birdScore++; 
+                document.getElementById('birdScoreDisplay').innerText = birdScore; 
+                updateBalance(75); 
+            }
             const pipeWidth = 100, gap = 130, birdRadius = 22;
             if(p.x < 150 + birdRadius && p.x + pipeWidth > 150 - birdRadius && (birdY - birdRadius < p.y - gap || birdY + birdRadius > p.y + gap)) { birdGameActive = false; }
         });
@@ -310,12 +313,11 @@
         if(birdY > canvas.height - 30 || birdY < 30) birdGameActive = false;
 
         if(!birdGameActive) {
-            // REKOR KAYDETME KODU BURADA
             if(birdScore > (userData.birdHighScore || 0)) {
                 database.ref('players/' + currentUser).update({ birdHighScore: birdScore });
                 alert("YENİ REKOR: " + birdScore);
             } else {
-                alert("OYUN BİTTİ! Skor: " + birdScore + " | Kazanç: " + (birdScore * 50) + " 🪙");
+                alert("OYUN BİTTİ! Skor: " + birdScore + " | Kazanç: " + (birdScore * 75) + " 🪙");
             }
             canvas.style.display = 'none'; document.getElementById('birdUI').style.display = 'none'; openGameMenu();
         } else { requestAnimationFrame(gameLoop); }
