@@ -17,24 +17,446 @@
         }
         @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* GİRİŞ EKRANI */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; z-index: 5000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 320px; text-align: center; box-shadow: 0 0 30px #ff00cc; }
         .login-box input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
         
-        /* ÜST NAVİGASYON */
         .top-nav { position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 15px; align-items: center; }
         .wallet { background: #ffcc00; color: #000; padding: 10px 25px; border-radius: 50px; font-weight: bold; border: 2px solid white; box-shadow: 0 0 15px rgba(255,204,0,0.5); }
         .nav-btn { background: rgba(255,255,255,0.2); padding: 12px 25px; border-radius: 50px; color: white; font-weight: bold; cursor: pointer; backdrop-filter: blur(10px); border: 2px solid white; transition: 0.3s; }
-        .nav-btn:hover { background: white; color: #3333ff; transform: scale(1.05); }
 
-        /* ANA İÇERİK */
         #mainContent { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; }
         h1.main-title { color: white; font-size: 48px; text-shadow: 3px 3px 10px rgba(0,0,0,0.5); margin-bottom: 30px; letter-spacing: 5px; z-index: 2; }
         
         .container { display: flex; gap: 20px; z-index: 2; flex-wrap: wrap; justify-content: center; }
         .card { width: 150px; height: 190px; border-radius: 15px; overflow: hidden; cursor: pointer; transition: 0.3s; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         .card:hover { transform: scale(1.1); }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        .name { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); color: white; text-align: center; padding: 5px 0; font-size: 12px; }
+
+        #bioOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 4000; }
+        .bio-box { background: white; padding: 40px; border-radius: 20px; width: 380px; text-align: center; position: relative; color: #333; }
+
+        #gameOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 2000; background: rgba(0,0,0,0.95); flex-direction: column; }
+        
+        .game-selector-grid { display: flex; gap: 40px; }
+        .game-box { 
+            width: 220px; height: 280px; 
+            background: rgba(255,255,255,0.05); 
+            border: 4px solid rgba(255, 204, 0, 0.5); 
+            border-radius: 30px; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            cursor: pointer; color: white; transition: 0.4s;
+        }
+        .game-box:hover { background: #ffcc00; color: black; transform: translateY(-20px); box-shadow: 0 25px 50px rgba(255, 204, 0, 0.5); }
+        .game-box div { font-size: 90px; margin-bottom: 15px; }
+        .game-box h3 { font-size: 24px; margin: 0; }
+
+        /* --- FULLSCREEN BIRD GAME MODE (Güncellendi) --- */
+        #birdCanvas { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(#4dc9ff, #fff); z-index: 3000; cursor: pointer; }
+        #birdUI { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3100; text-align: center; color: white; pointer-events: none; font-family: 'Courier New', Courier, monospace; }
+        #birdScoreDisplay { font-size: 120px; font-weight: bold; text-shadow: 6px 6px 0 #000; margin: 0; color: #ffcc00; }
+
+        /* SLOT MACHINE */
+        .slot-machine { 
+            background: #333; padding: 50px; border: 12px solid #ffd700; border-radius: 40px; 
+            box-shadow: 0 0 80px #ffcc00; text-align: center;
+        }
+        .reels { display: flex; gap: 25px; margin-bottom: 30px; background: #111; padding: 25px; border-radius: 20px; }
+        .reel { width: 110px; height: 110px; background: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 70px; color: black; }
+        .bet-container { display: flex; gap: 15px; margin-bottom: 25px; justify-content: center; }
+        .bet-btn { background: #444; color: white; border: 3px solid #666; padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 18px; }
+        .bet-btn.active { background: #ffcc00; color: black; border-color: white; transform: scale(1.1); box-shadow: 0 0 15px #ffcc00; }
+
+        .btn-game { padding: 18px 50px; border: none; border-radius: 60px; background: #ffcc00; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0 #b89600; font-size: 20px; pointer-events: auto; }
+        .close-main { position: absolute; top: 20px; right: 30px; font-size: 50px; cursor: pointer; color: white; z-index: 3200; text-shadow: 2px 2px 5px #000; }
+
+        #rankingTable { display: none; background: #222; padding: 40px; border-radius: 30px; width: 450px; color: white; border: 3px solid #444; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 18px; }
+        th, td { padding: 15px; border-bottom: 1px solid #333; text-align: left; }
+
+        .snowflake { position: absolute; top: -10px; animation: fall linear infinite; pointer-events: none; color: white; z-index: 1; }
+        @keyframes fall { to { transform: translateY(100vh); } }
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h1 style="color: #3333ff;">GOPAL PRO</h1>
+        <input type="text" id="username" placeholder="Kullanıcı Adı">
+        <input type="password" id="password" placeholder="Şifre">
+        <button class="btn-game" style="width: 100%;" onclick="handleAuth()">GİRİŞ / KAYIT</button>
+    </div>
+</div>
+
+<div id="mainContent">
+    <div class="top-nav">
+        <div style="color: white; font-weight: bold;">HOŞ GELDİN, <span id="userDisp" style="color: #ffcc00;">?</span></div>
+        <div class="wallet">🪙 KASA: <span id="balance">0</span></div>
+        <div class="nav-btn" onclick="openGameMenu()">🎮 OYUNLAR</div>
+        <div class="nav-btn" style="background: rgba(255, 68, 68, 0.4);" onclick="location.reload()">ÇIKIŞ</div>
+    </div>
+    <h1 class="main-title">GOPAL PRO</h1>
+    <div class="container">
+        <div class="card" onclick="openBio('🫦🫦🫦', 'Gopal evreninin en gizemli karakteri.')"><img src="foto1.jpg"><div class="name">🫦🫦🫦</div></div>
+        <div class="card" onclick="openBio('KanyePlaklıUcube', 'Plak koleksiyonu paha biçilemez.')"><img src="foto2.jpg"><div class="name">KanyePlaklıUcube</div></div>
+        <div class="card" onclick="openBio('EGZOTİKMEYVE🍒', 'Tropikal rüyaların gerçeğe dönüştüğü nokta.')"><img src="foto3.jpg"><div class="name">EGZOTİKMEYVE🍒</div></div>
+        <div class="card" onclick="openBio('sen benim tuvaletimsib', 'Mizahın en karanlık köşesi.')"><img src="foto4.jpg"><div class="name">sen benim tuvaletimsib</div></div>
+        <div class="card" onclick="openBio('EngelAdam', 'Hızlı karar verir, anında engeller.')"><img src="foto5.jpg"><div class="name">EngelAdam</div></div>
+    </div>
+</div>
+
+<div id="bioOverlay" onclick="closeBio()">
+    <div class="bio-box" onclick="event.stopPropagation()">
+        <h2 id="bioTitle"></h2><p id="bioText"></p>
+        <button class="btn-game" onclick="closeBio()" style="font-size: 14px; padding: 10px 30px;">KAPAT</button>
+    </div>
+</div>
+
+<canvas id="birdCanvas"></canvas>
+<div id="birdUI">
+    <p id="birdScoreDisplay">0</p>
+    <button class="btn-game" id="birdStartBtn" onclick="initBirdGame()">BAŞLAT (100🪙)</button>
+</div>
+
+<div id="gameOverlay">
+    <div class="close-main" onclick="closeGameMenu()">✖</div>
+    
+    <div id="gameSelector">
+        <h2 style="color: white; text-align:center; font-size: 36px; margin-bottom: 50px; letter-spacing: 5px;">OYUN SEÇİN</h2>
+        <div class="game-selector-grid">
+            <div class="game-box" onclick="startSlotGame()"><div>🎰</div><h3>SLOT</h3></div>
+            <div class="game-box" onclick="startBirdGame()"><div>🐦</div><h3>BIRD</h3></div>
+            <div class="game-box" onclick="showRanking()"><div>🏆</div><h3>RANK</h3></div>
+        </div>
+    </div>
+    
+    <div id="slotGame" style="display:none; flex-direction:column; align-items:center;">
+        <div class="slot-machine">
+            <div class="bet-container">
+                <button class="bet-btn active" onclick="setBet(50, this)">50</button>
+                <button class="bet-btn" onclick="setBet(100, this)">100</button>
+                <button class="bet-btn" onclick="setBet(500, this)">500</button>
+                <button class="bet-btn" onclick="setBet(1000, this)">1000</button>
+            </div>
+            <div class="reels">
+                <div id="reel1" class="reel">🍒</div><div id="reel2" class="reel">🍒</div><div id="reel3" class="reel">🍒</div>
+            </div>
+            <button class="btn-game" id="spin-btn" onclick="spinSlot()">KOLU ÇEK!</button>
+            <p id="slot-msg" style="margin-top:25px; color:white; font-size:24px; font-weight:bold;"></p>
+        </div>
+        <p style="color:#aaa; cursor:pointer; text-decoration:underline; margin-top:30px;" onclick="backToSelector()">Geri Dön</p>
+    </div>
+
+    <div id="rankingTable">
+        <h2 style="text-align:center; color:#ffcc00; font-size: 30px;">ZENGİNLER LİSTESİ</h2>
+        <table id="rankList"></table>
+        <button class="btn-game" style="margin-top:30px; width:100%;" onclick="backToSelector()">GERİ GİT</button>
+    </div>
+</div>
+
+<script>
+    // --- FIREBASE AYARLARI (AYNI) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCRXu6y3P9orBblWm5ASfraZUZq-tQqUFY",
+        authDomain: "gopalpro-c0620.firebaseapp.com",
+        databaseURL: "https://gopalpro-c0620-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "gopalpro-c0620",
+        storageBucket: "gopalpro-c0620.firebasestorage.app",
+        messagingSenderId: "432658140252",
+        appId: "1:432658140252:web:39c62813be7acda1406a99"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let currentUser = null, userData = null, currentBet = 50;
+    const slotIcons = ['🍒', '🍋', '🔔', '💎', '7️⃣', '⭐'];
+
+    function handleAuth() {
+        const u = document.getElementById('username').value.trim().toLowerCase();
+        const p = document.getElementById('password').value.trim();
+        if(!u || !p) return alert("Bilgileri gir!");
+        database.ref('players/' + u).once('value', snapshot => {
+            const data = snapshot.val();
+            if(!data) { userData = { pass: p, balance: 1000 }; database.ref('players/' + u).set(userData); loginSuccess(u); }
+            else if(data.pass === p) { userData = data; loginSuccess(u); } else { alert("Şifre yanlış!"); }
+        });
+    }
+
+    function loginSuccess(u) {
+        currentUser = u;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'flex';
+        document.getElementById('userDisp').innerText = u.toUpperCase();
+        database.ref('players/' + currentUser).on('value', snap => {
+            userData = snap.val();
+            document.getElementById('balance').innerText = userData ? userData.balance : 0;
+        });
+    }
+
+    function updateBalance(amt) { database.ref('players/' + currentUser).update({ balance: userData.balance + amt }); }
+    function setBet(a, b) { currentBet = a; document.querySelectorAll('.bet-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); }
+
+    // SLOT
+    function spinSlot() {
+        if(userData.balance < currentBet) return alert("Para bitti!");
+        updateBalance(-currentBet);
+        const btn = document.getElementById('spin-btn'); btn.disabled = true;
+        let count = 0;
+        const inv = setInterval(() => {
+            document.getElementById('reel1').innerText = slotIcons[Math.floor(Math.random()*6)];
+            document.getElementById('reel2').innerText = slotIcons[Math.floor(Math.random()*6)];
+            document.getElementById('reel3').innerText = slotIcons[Math.floor(Math.random()*6)];
+            if(++count > 20) { clearInterval(inv); checkSlot(); btn.disabled = false; }
+        }, 60);
+    }
+    function checkSlot() {
+        const r1 = document.getElementById('reel1').innerText, r2 = document.getElementById('reel2').innerText, r3 = document.getElementById('reel3').innerText;
+        let win = 0;
+        if(r1===r2 && r2===r3) win = currentBet * 10; else if(r1===r2 || r2===r3 || r1===r3) win = Math.floor(currentBet * 1.5);
+        if(win > 0) { updateBalance(win); document.getElementById('slot-msg').innerText = "KAZANÇ! +" + win; } else { document.getElementById('slot-msg').innerText = "KAYIP!"; }
+    }
+
+    // --- FULLSCREEN GOPAL BIRD PRO (Grafik ve Fizik Güncellemesi) ---
+    const canvas = document.getElementById('birdCanvas');
+    const ctx = canvas.getContext('2d');
+    let birdY, birdV, birdRotation, pipes, birdScore, birdGameActive = false;
+
+    function startBirdGame() {
+        document.getElementById('gameOverlay').style.display = 'none';
+        canvas.style.display = 'block';
+        document.getElementById('birdUI').style.display = 'block';
+        document.getElementById('birdStartBtn').style.display = 'inline-block';
+        document.getElementById('birdScoreDisplay').innerText = "0";
+        // Resize canvas
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        drawBackground();
+    }
+    
+    function initBirdGame() {
+        if(userData.balance < 100) return alert("Kasa boşaldı!");
+        updateBalance(-100);
+        birdY = canvas.height / 2;
+        birdV = 0;
+        birdRotation = 0;
+        pipes = [];
+        birdScore = 0;
+        birdGameActive = true;
+        document.getElementById('birdStartBtn').style.display = 'none';
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Kontroller
+    window.addEventListener('keydown', (e) => { if((e.code === 'Space' || e.code === 'ArrowUp') && birdGameActive) birdFlap(); });
+    canvas.addEventListener('mousedown', () => { if(birdGameActive) birdFlap(); });
+    canvas.addEventListener('touchstart', (e) => { if(birdGameActive) { e.preventDefault(); birdFlap(); } });
+
+    function birdFlap() {
+        birdV = -9; // Zıplama gücü arttı
+    }
+
+    function drawBackground() {
+        // Gökyüzü Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        skyGrad.addColorStop(0, "#4dc9ff");
+        skyGrad.addColorStop(1, "#fff");
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawBird(x, y, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        
+        // Kuş Gövdesi (Gerçekçi şekil ve gölge)
+        ctx.fillStyle = "#ffcc00"; // Ana renk sarı
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2); // Gövde
+        ctx.fill();
+        ctx.stroke();
+
+        // Göz
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(12, -10, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(15, -10, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gaga (Kırmızı)
+        ctx.fillStyle = "#ff4444";
+        ctx.beginPath();
+        ctx.moveTo(22, 5);
+        ctx.lineTo(40, 0);
+        ctx.lineTo(22, -5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Kanat (Hafif gölgeli)
+        ctx.fillStyle = "#e6b800";
+        ctx.beginPath();
+        ctx.ellipse(-10, 5, 15, 8, Math.PI/4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function drawPipe(p) {
+        const pipeWidth = 100;
+        const gap = 130; // Zorluk arttı
+        const pipeColor = "#2e7d32";
+        const rimColor = "#1b5e20";
+        const shadowColor = "rgba(0,0,0,0.3)";
+
+        ctx.save();
+        
+        // 1. Üst Boru
+        // Gölge efekti (Derinlik)
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 8;
+
+        // Ana boru gövdesi
+        ctx.fillStyle = pipeColor;
+        ctx.fillRect(p.x, 0, pipeWidth, p.y - gap);
+        
+        // Boru ucu (Halkası)
+        ctx.fillStyle = rimColor;
+        ctx.fillRect(p.x - 10, p.y - gap - 30, pipeWidth + 20, 30);
+        ctx.fillStyle = pipeColor;
+        ctx.fillRect(p.x - 8, p.y - gap - 28, pipeWidth + 16, 26); // İç halka
+
+        // 2. Alt Boru
+        // Gölge sıfırla (Shadow fix)
+        ctx.shadowBlur = 0; ctx.shadowOffsetX = 0;
+
+        // Gölge efekti
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 8;
+
+        // Ana boru gövdesi
+        ctx.fillStyle = pipeColor;
+        ctx.fillRect(p.x, p.y + gap, pipeWidth, canvas.height);
+        
+        // Boru ucu (Halkası)
+        ctx.fillStyle = rimColor;
+        ctx.fillRect(p.x - 10, p.y + gap, pipeWidth + 20, 30);
+        ctx.fillStyle = pipeColor;
+        ctx.fillRect(p.x - 8, p.y + gap + 2, pipeWidth + 16, 26); // İç halka
+
+        ctx.restore();
+    }
+
+    function gameLoop() {
+        if(!birdGameActive) return;
+        
+        // 1. Arka Plan
+        drawBackground();
+        
+        // 2. Fizik ve Hareket
+        birdV += 0.6; // Yerçekimi arttı
+        birdY += birdV;
+        
+        // Gerçekçi Rotasyon (Hıza bağlı burun aşağı/yukarı)
+        birdRotation = Math.atan2(birdV, 15); // Uçuş yönüne bakar
+        if (birdRotation > Math.PI / 4) birdRotation = Math.PI / 4; // Maksimum aşağı bakış limitli
+
+        // 3. Kuş Çiz
+        drawBird(150, birdY, birdRotation);
+
+        // 4. Boru Yönetimi
+        const minDistance = canvas.width < 1000 ? 350 : 500; // Ekran genişliğine göre mesafe
+        if(pipes.length === 0 || pipes[pipes.length-1].x < canvas.width - minDistance) {
+            pipes.push({ x: canvas.width, y: Math.random() * (canvas.height - 400) + 200 });
+        }
+
+        pipes.forEach((p, i) => {
+            p.x -= 6; // Boru hızı arttı
+            
+            // Boru Çiz (Gölgeli)
+            drawPipe(p);
+
+            // Skor Kontrolü (Tam kuşun arkasındayken)
+            if(p.x < 145 && p.x > 138) {
+                birdScore++;
+                document.getElementById('birdScoreDisplay').innerText = birdScore;
+                updateBalance(50); 
+            }
+
+            // Çarpışma Kontrolü (Gerçekçi hitbox)
+            const pipeWidth = 100;
+            const gap = 130;
+            const birdRadius = 22;
+
+            if(p.x < 150 + birdRadius && p.x + pipeWidth > 150 - birdRadius && 
+              (birdY - birdRadius < p.y - gap || birdY + birdRadius > p.y + gap)) {
+                birdGameActive = false;
+            }
+        });
+
+        // 5. Ekran Sınırları ve Temizlik
+        pipes = pipes.filter(p => p.x > -150);
+        if(birdY > canvas.height - 30 || birdY < 30) birdGameActive = false;
+
+        // 6. Oyun Bitişi
+        if(!birdGameActive) {
+            alert("ÇAKILDIK! Skor: " + birdScore + " | Kazanç: " + (birdScore * 50) + " 🪙");
+            canvas.style.display = 'none';
+            document.getElementById('birdUI').style.display = 'none';
+            openGameMenu(); // Menüye dön
+        } else {
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function showRanking() {
+        document.getElementById('gameSelector').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'block';
+        database.ref('players').orderByChild('balance').limitToLast(10).once('value', snap => {
+            let list = []; snap.forEach(c => { list.push({n: c.key, b: c.val().balance}); });
+            list.sort((a,b) => b.b - a.b);
+            let t = document.getElementById('rankList'); t.innerHTML = '<tr><th>#</th><th>Oyuncu</th><th>Bakiye</th></tr>';
+            list.forEach((p, i) => { let r = t.insertRow(); r.innerHTML = `<td>${i+1}</td><td>${p.n}</td><td style="color:#00ffcc">${p.b} 🪙</td>`; });
+        });
+    }
+
+    function openBio(t, s) { document.getElementById('bioTitle').innerText = t; document.getElementById('bioText').innerText = s; document.getElementById('bioOverlay').style.display = 'flex'; }
+    function closeBio() { document.getElementById('bioOverlay').style.display = 'none'; }
+    function openGameMenu() { document.getElementById("gameOverlay").style.display = "flex"; backToSelector(); }
+    function closeGameMenu() { document.getElementById("gameOverlay").style.display = "none"; }
+    function backToSelector() { 
+        document.getElementById("gameSelector").style.display = "block"; 
+        document.getElementById("slotGame").style.display = "none"; 
+        document.getElementById("rankingTable").style.display = "none"; 
+        canvas.style.display = 'none';
+        document.getElementById('birdUI').style.display = 'none';
+        birdGameActive = false; // Stop loop
+    }
+    function startSlotGame() { document.getElementById("gameSelector").style.display = "none"; document.getElementById("slotGame").style.display = "flex"; }
+
+    setInterval(() => {
+        const s = document.createElement("div"); s.className = "snowflake"; s.innerHTML = "❄";
+        s.style.left = Math.random() * window.innerWidth + "px";
+        s.style.animationDuration = Math.random() * 3 + 4 + "s";
+        document.body.appendChild(s); setTimeout(() => s.remove(), 5000);
+    }, 200);
+</script>
+</body>
+</html>        .card:hover { transform: scale(1.1); }
         .card img { width: 100%; height: 100%; object-fit: cover; }
         .name { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); color: white; text-align: center; padding: 5px 0; font-size: 12px; }
 
